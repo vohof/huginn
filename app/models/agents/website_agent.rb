@@ -137,7 +137,7 @@ module Agents
     end
 
     def previous_payloads
-      events.order("id desc").limit(UNIQUENESS_LOOK_BACK).pluck(:payload).map(&:to_json) if options['mode'].to_s == "on_change"
+      events.order("id desc").limit(UNIQUENESS_LOOK_BACK).preload(:json_payload).map(&:payload).map(&:to_json) if options['mode'].to_s == "on_change"
     end
 
     def extract_full_json?

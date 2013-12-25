@@ -5,15 +5,19 @@ class Event < ActiveRecord::Base
 
   acts_as_mappable
 
-  serialize :payload, JSONWithIndifferentAccess
-
-  def payload=(o)
-    self[:payload] = ActiveSupport::HashWithIndifferentAccess.new(o)
-  end
-
-
   belongs_to :user
   belongs_to :agent, :counter_cache => true
+  has_one :json_payload, :autosave => true, :as => :associate, :dependent => :delete
+
+  def payload
+    (json_payload ? json_payload : build_json_payload).payload
+  end
+
+  def payload=(p)
+    (json_payload ? json_payload : build_json_payload).payload = p
+  end
+
+  validates_associated :json_payload
 
   scope :recent, lambda { |timespan = 12.hours.ago|
     where("events.created_at > ?", timespan)

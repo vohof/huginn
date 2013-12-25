@@ -1,0 +1,7 @@
+bob_website_agent_event_json_payload:
+  associate: bob_website_agent_event (Event)
+  payload: <%= [{ :title => "foo", :url => "http://foo.com" }].to_json.inspect %>
+
+jane_website_agent_event_json_payload:
+  associate: jane_website_agent_event (Event)
+  payload: <%= [{ :title => "foo", :url => "http://foo.com" }].to_json.inspect %>

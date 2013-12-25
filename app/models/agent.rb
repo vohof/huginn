@@ -23,14 +23,19 @@ class Agent < ActiveRecord::Base
     self[:options] = ActiveSupport::HashWithIndifferentAccess.new(o)
   end
 
-  def memory=(o)
-    self[:memory] = ActiveSupport::HashWithIndifferentAccess.new(o)
+  def memory
+    (json_payload ? json_payload : build_json_payload).payload
+  end
+
+  def memory=(m)
+    (json_payload ? json_payload : build_json_payload).payload = m
   end
 
   validates_presence_of :name, :user
   validate :sources_are_owned
   validate :validate_schedule
   validate :validate_options
+  validates_associated :json_payload
 
   after_initialize :set_default_schedule
   before_validation :set_default_schedule
@@ -39,6 +44,7 @@ class Agent < ActiveRecord::Base
   before_create :set_last_checked_event_id
 
   belongs_to :user, :inverse_of => :agents
+  has_one :json_payload, :autosave => true, :as => :associate
   has_many :events, :dependent => :delete_all, :inverse_of => :agent, :order => "events.id desc"
   has_one  :most_recent_event, :inverse_of => :agent, :class_name => "Event", :order => "events.id desc"
   has_many :logs, :dependent => :delete_all, :inverse_of => :agent, :class_name => "AgentLog", :order => "agent_logs.id desc"

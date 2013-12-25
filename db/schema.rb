@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20131105063248) do
+ActiveRecord::Schema.define(:version => 20131224000019) do
 
   create_table "agent_logs", :force => true do |t|
     t.integer  "agent_id",                         :null => false
@@ -33,10 +33,10 @@ ActiveRecord::Schema.define(:version => 20131105063248) do
     t.datetime "last_check_at"
     t.datetime "last_receive_at"
     t.integer  "last_checked_event_id"
-    t.datetime "created_at",                                  :null => false
-    t.datetime "updated_at",                                  :null => false
-    t.text     "memory",                :limit => 2147483647
+    t.datetime "created_at",                           :null => false
+    t.datetime "updated_at",                           :null => false
     t.datetime "last_webhook_at"
+    t.integer  "keep_events_for",       :default => 0, :null => false
   end
 
   add_index "agents", ["schedule"], :name => "index_agents_on_schedule"
@@ -62,17 +62,26 @@ ActiveRecord::Schema.define(:version => 20131105063248) do
   create_table "events", :force => true do |t|
     t.integer  "user_id"
     t.integer  "agent_id"
-    t.decimal  "lat",                            :precision => 15, :scale => 10
-    t.decimal  "lng",                            :precision => 15, :scale => 10
-    t.text     "payload",    :limit => 16777215
-    t.datetime "created_at",                                                     :null => false
-    t.datetime "updated_at",                                                     :null => false
+    t.decimal  "lat",        :precision => 15, :scale => 10
+    t.decimal  "lng",        :precision => 15, :scale => 10
+    t.datetime "created_at",                                 :null => false
+    t.datetime "updated_at",                                 :null => false
     t.datetime "expires_at"
   end
 
   add_index "events", ["agent_id", "created_at"], :name => "index_events_on_agent_id_and_created_at"
   add_index "events", ["expires_at"], :name => "index_events_on_expires_at"
   add_index "events", ["user_id", "created_at"], :name => "index_events_on_user_id_and_created_at"
+
+  create_table "json_payloads", :force => true do |t|
+    t.text     "payload",        :limit => 2147483647
+    t.string   "associate_type"
+    t.integer  "associate_id"
+    t.datetime "created_at",                           :null => false
+    t.datetime "updated_at",                           :null => false
+  end
+
+  add_index "json_payloads", ["associate_type", "associate_id"], :name => "index_json_payloads_on_associate_type_and_associate_id"
 
   create_table "links", :force => true do |t|
     t.integer  "source_id"

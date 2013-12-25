@@ -17,6 +17,28 @@ describe Event do
     end
   end
 
+  describe "json payload handling" do
+    it "does not create a json_payload when one isn't needed" do
+      event = agents(:jane_weather_agent).create_event({})
+      event.json_payload.should be_nil
+      event.reload.json_payload.should be_nil
+    end
+
+    it "does create a json_payload when data has been assigned" do
+      event = agents(:jane_weather_agent).create_event(:payload => { 'hello' => 'world' })
+      event.json_payload.should_not be_nil
+      event.payload.should == { 'hello' => 'world' }
+      event.reload.payload.should == { 'hello' => 'world' }
+    end
+
+    it "should save changes to the payload" do
+      event = agents(:jane_weather_agent).create_event(:payload => { 'hello' => 'world' })
+      event.payload['foo'] = 'bar'
+      event.save!
+      event.reload.payload.should == { 'hello' => 'world', 'foo' => 'bar' }
+    end
+  end
+
   describe ".cleanup_expired!" do
     it "removes any Events whose expired_at date is non-null and in the past" do
       event = agents(:jane_weather_agent).create_event :expires_at => 2.hours.from_now
